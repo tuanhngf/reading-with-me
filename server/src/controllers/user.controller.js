@@ -1,12 +1,12 @@
+const { CreatedResponse } = require('../core/success.response');
 const userService = require('../services/user.service');
 
 class UserController {
     signUp = async (req, res, next) => {
-        try {
-            return res.status(201).json(await userService.signUp(req.body));
-        } catch (error) {
-            next(error);
-        }
+        new CreatedResponse({
+            message: 'Register Success.',
+            data: await userService.signUp(req.body),
+        }).send(res)
     };
 }
 
