@@ -1,13 +1,13 @@
 const tokenModel = require('../models/token.model');
 
 class TokenService {
-    createToken = async ({ userId, publicKey, privateKey }) => {
+    createToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
         try {
-            const tokens = await tokenModel.create({
-                userId,
-                publicKey,
-                privateKey
-            });
+            const filter = { userId };
+            const update = { publicKey, privateKey, refreshToken, refreshTokenUsed: [] };
+            const options = { upsert: true, new: true };
+
+            const tokens = await tokenModel.findByIdAndUpdate(filter, update, options);
 
             return tokens ? tokens.publicKey : null;
         } catch (error) {
@@ -16,4 +16,4 @@ class TokenService {
     };
 }
 
-module.exports = new TokenService()
+module.exports = new TokenService();

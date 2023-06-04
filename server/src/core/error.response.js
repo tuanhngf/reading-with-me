@@ -23,4 +23,10 @@ class BadRequest extends ErrorResponse {
     }
 }
 
-module.exports = { ConflictRequest, BadRequest };
+class AuthFailure extends ErrorResponse {
+    constructor(message = messages.UNAUTHORIZED, status = statusCodes.UNAUTHORIZED) {
+        super(message, status);
+    }
+}
+
+module.exports = { ConflictRequest, BadRequest, AuthFailure };

@@ -11,5 +11,6 @@ router.get('', (req, res, next) => {
 });
 
 router.post('/signup', asyncHandle(userController.signUp));
+router.post('/login', asyncHandle(userController.login));
 
 module.exports = router;

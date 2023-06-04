@@ -30,6 +30,10 @@ var userSchema = new mongoose.Schema(
             type: Array,
             default: ['0000'],
         },
+        saved: {
+            type: Array,
+            default: [],
+        },
     },
     {
         collection: COLLECTION_NAME,
