@@ -1,3 +1,4 @@
+const { Types } = require('mongoose');
 const tokenModel = require('../models/token.model');
 
 class TokenService {
@@ -14,6 +15,8 @@ class TokenService {
             return error;
         }
     };
+
+    findUserById = async (userId) => await tokenModel.findOne({ userId: Types.ObjectId(userId) }).lean();
 }
 
 module.exports = new TokenService();

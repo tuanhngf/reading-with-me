@@ -1,7 +1,7 @@
 const ReasonPhrases = require('../configs/reasonPhrases');
 const StatusCodes = require('../configs/statusCodes');
 
-const statusCodes = StatusCodes
+const statusCodes = StatusCodes;
 const messages = ReasonPhrases;
 
 class ErrorResponse extends Error {
@@ -29,4 +29,10 @@ class AuthFailure extends ErrorResponse {
     }
 }
 
-module.exports = { ConflictRequest, BadRequest, AuthFailure };
+class NotFound extends ErrorResponse {
+    constructor(message = messages.NOT_FOUND, status = statusCodes.NOT_FOUND) {
+        super(message, status);
+    }
+}
+
+module.exports = { ConflictRequest, BadRequest, AuthFailure, NotFound };
