@@ -66,6 +66,8 @@ class UserService {
             user: mergeObjects(user, accessToken),
         };
     };
+
+    logout = async (keyStore) => await tokenService.removeTokenById(keyStore._id);
 }
 
 module.exports = new UserService();

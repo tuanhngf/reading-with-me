@@ -6,13 +6,20 @@ class UserController {
         new CreatedResponse({
             message: 'Register Success.',
             data: await userService.signUp(req.body),
-        }).send(res)
+        }).send(res);
     };
 
     login = async (req, res, next) => {
         new SuccessResponse({
             data: await userService.login(req.body),
-        }).send(res)
+        }).send(res);
+    };
+
+    logout = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Logout Success.',
+            data: await userService.logout(req.keyStore),
+        }).send(res);
     };
 }
 

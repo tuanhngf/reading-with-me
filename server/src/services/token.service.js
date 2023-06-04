@@ -1,4 +1,4 @@
-const { Types } = require('mongoose');
+const { default: mongoose } = require('mongoose');
 const tokenModel = require('../models/token.model');
 
 class TokenService {
@@ -16,7 +16,9 @@ class TokenService {
         }
     };
 
-    findUserById = async (userId) => await tokenModel.findOne({ userId: Types.ObjectId(userId) }).lean();
+    findUserById = async (userId) => await tokenModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }).lean();
+
+    removeTokenById = async (id) => await tokenModel.deleteOne((id = new mongoose.Types.ObjectId(id))).lean();
 }
 
 module.exports = new TokenService();

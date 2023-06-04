@@ -35,18 +35,11 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 };
 
 const authentication = asyncHandle(async (req, res, next) => {
-    /* Check userId missing
-     get accessToken
-     verifyToken
-     check userId in db
-     check keyStore with userId
-     if OK => next()
-    */
     const userId = req.headers[HEADER.CLIENT_ID];
     if (!userId) throw new AuthFailure('Invalid Request');
 
     const keyStore = await findUserById(userId);
-    if (!keyStore) throw new NotFound();
+    if (!keyStore) throw new NotFound('Token Not Found');
 
     const accessToken = req.headers[HEADER.AUTHORIZATION];
     if (!accessToken) throw new AuthFailure('Invalid Request');
@@ -57,7 +50,7 @@ const authentication = asyncHandle(async (req, res, next) => {
         req.keyStore = keyStore;
         return next();
     } catch (error) {
-        throw error;
+        throw new AuthFailure('Invalid Request');
     }
 });
 

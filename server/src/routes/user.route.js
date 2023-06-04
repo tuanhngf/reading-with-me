@@ -11,9 +11,11 @@ router.get('', (req, res, next) => {
     });
 });
 
-router.use(authentication)
-
 router.post('/signup', asyncHandle(userController.signUp));
 router.post('/login', asyncHandle(userController.login));
+
+router.use(authentication)
+
+router.post('/logout', asyncHandle(userController.logout));
 
 module.exports = router;
