@@ -4,7 +4,7 @@ const HEADERS = {
 };
 
 const TOKEN_EXP = {
-    AT: '7d',
+    AT: '3d',
     RT: '30d',
 };
 
