@@ -5,7 +5,7 @@ class TokenService {
     createToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
         try {
             const filter = { userId };
-            const update = { publicKey, privateKey, refreshToken, refreshTokenUsed: [] };
+            const update = { publicKey, privateKey, refreshToken };
             const options = { upsert: true, new: true };
 
             const tokens = await tokenModel.findOneAndUpdate(filter, update, options);
