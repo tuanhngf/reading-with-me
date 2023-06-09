@@ -13,8 +13,9 @@ router.get('', (req, res, next) => {
 
 router.post('/signup', asyncHandle(userController.signUp));
 router.post('/login', asyncHandle(userController.login));
+router.post('/auth', asyncHandle(userController.auth));
 
-router.use(authentication)
+router.use(authentication);
 
 router.post('/logout', asyncHandle(userController.logout));
 

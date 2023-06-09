@@ -21,6 +21,12 @@ class UserController {
             data: await userService.logout(req.keyStore),
         }).send(res);
     };
+
+    auth = async (req, res, next) => {
+        new SuccessResponse({
+            data: await userService.auth(req.headers),
+        }).send(res);
+    };
 }
 
 module.exports = new UserController();

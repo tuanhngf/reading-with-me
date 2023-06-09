@@ -2,9 +2,11 @@ const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const tokenService = require('./token.service');
-const { createTokenPair } = require('../auth/authUtils');
+const { createTokenPair, verifyToken } = require('../auth/authUtils');
 const { getInfo, mergeObjects, findByUsername } = require('../utils');
-const { BadRequest, AuthFailure } = require('../core/error.response');
+const { BadRequest, AuthFailure, NotFound } = require('../core/error.response');
+const { HEADERS, TOKEN_EXP } = require('../configs');
+const JWT = require('jsonwebtoken');
 
 class UserService {
     signUp = async ({ username, name, email, mobile, password }) => {
@@ -68,6 +70,41 @@ class UserService {
     };
 
     logout = async (keyStore) => await tokenService.removeTokenById(keyStore._id);
+
+    auth = async (req) => {
+        const userId = req[HEADERS.CLIENT_ID];
+        if (!userId) throw new AuthFailure('Invalid Request');
+
+        const keyStore = await tokenService.findUserById(userId);
+        if (!keyStore) throw new NotFound('Token Not Found');
+
+        const accessToken = req[HEADERS.AUTHORIZATION];
+        if (!accessToken) throw new AuthFailure('Invalid Request');
+
+        const { publicKey, privateKey, refreshToken } = keyStore;
+
+        const { isTokenExpired: isAccessTokenExpired } = await verifyToken(accessToken, publicKey, userId);
+
+        const { isTokenExpired: isRefreshTokenExpired, username } = await verifyToken(refreshToken, privateKey, userId);
+        if (isRefreshTokenExpired) throw new AuthFailure('Token Expired');
+
+        const foundUser = await findByUsername({ username });
+        const user = getInfo({ fields: ['_id', 'username', 'name', 'email', 'mobile'], object: foundUser });
+
+        if (isAccessTokenExpired) {
+            const newAccessToken = await JWT.sign({ userId, username }, publicKey, {
+                expiresIn: TOKEN_EXP.AT,
+            });
+
+            return {
+                user: mergeObjects(user, { accessToken: newAccessToken }),
+            };
+        }
+
+        return {
+            user: mergeObjects(user, { accessToken }),
+        };
+    };
 }
 
 module.exports = new UserService();

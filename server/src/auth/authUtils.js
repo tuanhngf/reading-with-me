@@ -2,29 +2,16 @@ const JWT = require('jsonwebtoken');
 const { asyncHandle } = require('../utils');
 const { AuthFailure, NotFound } = require('../core/error.response');
 const { findUserById } = require('../services/token.service');
-
-const HEADER = {
-    CLIENT_ID: 'x-client-id',
-    AUTHORIZATION: 'authorization',
-};
+const { HEADERS, TOKEN_EXP } = require('../configs');
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
         const accessToken = await JWT.sign(payload, publicKey, {
-            expiresIn: '2 days',
+            expiresIn: TOKEN_EXP.AT,
         });
 
         const refreshToken = await JWT.sign(payload, privateKey, {
-            expiresIn: '7 days',
-        });
-
-        JWT.verify(accessToken, publicKey, (err, decode) => {
-            if (err) {
-                console.log('Error Verify: ', err);
-                return;
-            }
-
-            console.log('Decode verify: ', decode);
+            expiresIn: TOKEN_EXP.RT,
         });
 
         return {
@@ -35,13 +22,13 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 };
 
 const authentication = asyncHandle(async (req, res, next) => {
-    const userId = req.headers[HEADER.CLIENT_ID];
+    const userId = req.headers[HEADERS.CLIENT_ID];
     if (!userId) throw new AuthFailure('Invalid Request');
 
     const keyStore = await findUserById(userId);
     if (!keyStore) throw new NotFound('Token Not Found');
 
-    const accessToken = req.headers[HEADER.AUTHORIZATION];
+    const accessToken = req.headers[HEADERS.AUTHORIZATION];
     if (!accessToken) throw new AuthFailure('Invalid Request');
 
     try {
@@ -54,4 +41,17 @@ const authentication = asyncHandle(async (req, res, next) => {
     }
 });
 
-module.exports = { createTokenPair, authentication };
+const verifyToken = async (token, key, userId) => {
+    try {
+        const { userId: decodedUserId, username } = await JWT.verify(token, key);
+        if (userId !== decodedUserId) throw new AuthFailure('Invalid Request');
+        return { username, isTokenExpired: false };
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            throw new AuthFailure('Invalid Token');
+        }
+        return { userName: null, isTokenExpired: true };
+    }
+};
+
+module.exports = { createTokenPair, authentication, verifyToken };
